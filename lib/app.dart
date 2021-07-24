@@ -9,8 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:user_repository/user_repository.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({
     Key? key,
     required this.authenticationRepository,
@@ -21,13 +22,44 @@ class App extends StatelessWidget {
   final UserRepository userRepository;
 
   @override
+  _AppState createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+
+  bool _initialized = false;
+  bool _error = false;
+
+  // Define an async function to initialize FlutterFire
+  void initializeFlutterFire() async {
+    try {
+      // Wait for Firebase to initialize and set `_initialized` state to true
+      await Firebase.initializeApp();
+      setState(() {
+        _initialized = true;
+      });
+    } catch(e) {
+      // Set `_error` state to true if Firebase initialization fails
+      setState(() {
+        _error = true;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    initializeFlutterFire();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return RepositoryProvider.value(
-      value: authenticationRepository,
+      value: widget.authenticationRepository,
       child: BlocProvider(
         create: (_) => AuthenticationBloc(
-            authenticationRepository: authenticationRepository,
-            userRepository: userRepository),
+            authenticationRepository: widget.authenticationRepository,
+            userRepository: widget.userRepository),
         child: BlocProvider(create: (context) => MenuCubit(), child: AppView()),
       ),
     );
