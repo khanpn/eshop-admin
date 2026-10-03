@@ -7,6 +7,7 @@ void main() {
   final userRepository = UserRepository();
   final authenticationRepository =
       AuthenticationRepository(userRepository: userRepository);
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(
     App(
       authenticationRepository: authenticationRepository,
